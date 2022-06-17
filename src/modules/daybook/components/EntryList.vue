@@ -4,6 +4,12 @@
       <input type="text" class="form-control" placeholder="Find Entries" v-model="term" >
     </div>
 
+    <div class="mt-2 d-flex flex-column">
+      <button class="btn btn-primary mx-3" @click="$router.push({ name: 'entry', params: { id: 'new'}})">
+        <i class="fa fa-plus-circle"></i>
+      </button>
+    </div>
+
     <div class="entry-scrollarea">
       <JournalEntry
         v-for="entry in entriesByTerm"
