@@ -8,7 +8,7 @@
       </div>
   
       <div>
-        <button class="btn btn-danger mx-2">
+        <button v-if="entry.id" class="btn btn-danger mx-2" @click="onDeleteEntry">
           Remove
           <i class="fa fa-trash-alt"></i>
         </button>
@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2';
 import { defineAsyncComponent } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 import getDates from '../helpers/dates';
@@ -81,7 +82,9 @@ export default {
   },
   methods: {
     ...mapActions({
-      updateEntry: 'journal/updateEntry'
+      updateEntry: 'journal/updateEntry',
+      createEntry: 'journal/createEntry',
+      deleteEntry: 'journal/deleteEntry'
     }),
     loadEntry() {
       let entry;
@@ -100,11 +103,44 @@ export default {
       this.entry = entry;
     },
     async saveEntry() {
+
+      new Swal({
+        title: 'Please Wait',
+        allowOutsideClick: false
+      });
+
+      Swal.showLoading();
+
       if (this.entry.id) {
         await this.updateEntry(this.entry);
       } else {
-        console.log('POST')
+        const id = await this.createEntry(this.entry);
+        
+        this.$router.push({ name: 'entry', params: { id }});
       }
+
+      Swal.fire('Saved', 'Entry Saved!', 'success');
+    },
+    async onDeleteEntry () {
+      const result = await Swal.fire({
+        title: 'Are you Sure?',
+        text: 'You will not be able to recover a deleted Entry',
+        showDenyButton: true,
+        confirmButtonText: 'Yes, Delete'
+      })
+
+      if(result.isConfirmed) {
+        new Swal({
+          title: 'Please wait...',
+          allowOutsideClick: false
+        });
+
+        Swal.showLoading();
+        await this.deleteEntry(this.entry.id); 
+        this.$router.push({ name: 'no-entry'});
+      }
+
+      Swal.fire('Entry Deleted', '', 'success');
     }
   },
   watch: {

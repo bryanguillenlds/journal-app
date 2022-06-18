@@ -2,6 +2,9 @@ import journalApi from "@/api/journalApi"
 
 export const loadEntries = async ({commit}) => {
   const {data} = await journalApi.get('/entries.json');
+
+  if (!data) return commit('setEntries', []);
+
   const entries = [];
   // Loop through all keys of the response (the keys are the ids coming from firebase)
   // and we want to make the repsonse into an arr with the id INSIDE of each pushed obj
@@ -26,6 +29,23 @@ export const updateEntry = async ({ commit }, entry) => {
   //we commit the entry because it was already the updated version and it contains the id, resp doesn't
 }
 
-export const createEntry = async (/*{ commit }*/) => {
+export const createEntry = async ({ commit }, entry) => {
+  const { date, picture, text } = entry;
+  const dataToSave = { date, picture, text };
 
+  const {data} = await journalApi.post(`entries.json`, dataToSave);
+  dataToSave.id = data.name;
+
+  commit('addEntry', dataToSave);
+
+  return dataToSave.id;
+}
+
+export const deleteEntry = async ({ commit }, id) => {
+  
+  await journalApi.delete(`entries/${id}.json`);
+
+  commit('deleteEntry', id);
+
+  return id;
 }
