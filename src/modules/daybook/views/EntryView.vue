@@ -8,11 +8,20 @@
       </div>
   
       <div>
+        <input
+          v-show="false"
+          type="file"
+          @change="onSelectedImage"
+          ref="iamgeSelector"
+          accept="image/png, image/jpeg"
+        >
+
         <button v-if="entry.id" class="btn btn-danger mx-2" @click="onDeleteEntry">
           Remove
           <i class="fa fa-trash-alt"></i>
         </button>
-        <button class="btn btn-primary">
+
+        <button class="btn btn-primary" @click="onSelectImage">
           Upload Picture
           <i class="fa fa-upload"></i>
         </button>
@@ -25,7 +34,14 @@
     </div>
     
     <img
-      src="https://images.unsplash.com/photo-1550439062-609e1531270e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3870&q=80"
+      v-if="entry.picture && !localImage"
+      :src="entry.picture"
+      alt="guy programming"
+      class="img-thumbnail"
+    >
+    <img
+      v-if="localImage"
+      :src="localImage"
       alt="guy programming"
       class="img-thumbnail"
     >
@@ -43,6 +59,7 @@ import Swal from 'sweetalert2';
 import { defineAsyncComponent } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 import getDates from '../helpers/dates';
+import uploadImage from '../helpers/uploadImage';
 
 export default {
   components: {
@@ -50,7 +67,9 @@ export default {
   },
   data() {
     return {
-      entry: null
+      entry: null,
+      localImage: null, //processed image file for local upload
+      file: null //actual image file for db saving
     }
   },
   props: {
@@ -110,6 +129,9 @@ export default {
       });
 
       Swal.showLoading();
+      const picture = await uploadImage(this.file); //returns secure_url for cloudinary image
+
+      this.entry.picture = picture;
 
       if (this.entry.id) {
         await this.updateEntry(this.entry);
@@ -119,6 +141,7 @@ export default {
         this.$router.push({ name: 'entry', params: { id }});
       }
 
+      this.file = null;
       Swal.fire('Saved', 'Entry Saved!', 'success');
     },
     async onDeleteEntry () {
@@ -141,6 +164,24 @@ export default {
       }
 
       Swal.fire('Entry Deleted', '', 'success');
+    },
+    onSelectedImage(event) {
+      const file = event.target.files[0];
+
+      if (!file) {
+        this.localImage = null;
+        this.file = null;
+        return;
+      }
+
+      this.file = file;
+
+      const fr = new FileReader();
+      fr.onload = () => this.localImage = fr.result;
+      fr.readAsDataURL(file);
+    },
+    onSelectImage() {
+      this.$refs.imageSelector.click();
     }
   },
   watch: {
