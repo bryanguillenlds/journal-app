@@ -12,7 +12,7 @@
           v-show="false"
           type="file"
           @change="onSelectedImage"
-          ref="iamgeSelector"
+          ref="imageSelector"
           accept="image/png, image/jpeg"
         >
 
@@ -62,6 +62,7 @@ import getDates from '../helpers/dates';
 import uploadImage from '../helpers/uploadImage';
 
 export default {
+  name: 'EntryView',
   components: {
     Fab: defineAsyncComponent(() => import('../components/Fab.vue'))
   },
