@@ -25,7 +25,10 @@ export const updateEntry = async ({ commit }, entry) => {
   const dataToSave = { date, picture, text };
 
   await journalApi.put(`entries/${entry.id}.json`, dataToSave);
-  commit('updateEntry', {...entry}); //spread it so that we don't pass it as reference
+
+  dataToSave.id = entry.id;
+
+  commit('updateEntry', {...dataToSave}); //spread it so that we don't pass it as reference
   //we commit the entry because it was already the updated version and it contains the id, resp doesn't
 }
 
