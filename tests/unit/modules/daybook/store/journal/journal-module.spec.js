@@ -57,17 +57,15 @@ describe('Vuex Journal Store', () => {
       text: "A brand new entry!"
     });
 
-    let testEntries = store.state.journal.entries;
+    const testEntries = store.state.journal.entries;
 
     expect(testEntries.length).toBe(3);
     expect(testEntries.find(entry => entry.id === 'DEF123')).toBeTruthy();
 
     store.commit('journal/deleteEntry', 'DEF123');
 
-    testEntries = store.state.journal.entries;
-
-    expect(testEntries.length).toBe(2);
-    expect(testEntries.find(entry => entry.id === 'DEF123')).toBeFalsy();
+    expect(store.state.journal.entries.length).toBe(2);
+    expect(store.state.journal.entries.find(entry => entry.id === 'DEF123')).toBeFalsy();
   });
 
   // GETTERS

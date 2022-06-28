@@ -3,7 +3,10 @@ import journalApi from "@/api/journalApi"
 export const loadEntries = async ({commit}) => {
   const {data} = await journalApi.get('/entries.json');
 
-  if (!data) return commit('setEntries', []);
+  if (!data) {
+    commit('setEntries', []);
+    return;
+  }
 
   const entries = [];
   // Loop through all keys of the response (the keys are the ids coming from firebase)
@@ -17,7 +20,6 @@ export const loadEntries = async ({commit}) => {
   }
 
   commit('setEntries', entries);
-
 }
 
 export const updateEntry = async ({ commit }, entry) => {
@@ -41,7 +43,7 @@ export const createEntry = async ({ commit }, entry) => {
 
   commit('addEntry', dataToSave);
 
-  return dataToSave.id;
+  return data.name;
 }
 
 export const deleteEntry = async ({ commit }, id) => {
